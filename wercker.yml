@@ -1,4 +1,4 @@
-box: golang:1.6
+box: thingful/golang@1.6.2
 build:
   steps:
     - script: 
