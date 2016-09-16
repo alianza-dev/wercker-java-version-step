@@ -9,4 +9,7 @@ func main() {
   fmt.Println("Hello");
 }
 
+func Version() {
+  fmt.Println("Version");
+}
 

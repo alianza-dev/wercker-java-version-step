@@ -4,5 +4,10 @@ build:
     - script: 
         name: Compile
         code: |
-          go build src/main
+          go build main.go
+
+    - script:
+        name: Test
+        code: |
+          go test main_test.go
 
