@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+
+require 'rexml/document'
+require 'fileutils'
+
+def run_cmd(cmd)
+    stdout = `#{cmd} 2>&1`
+    if $? != 0
+        STDERR.puts "Running cmd failed: #{cmd}"
+        STDERR.puts stdout
+        exit 1
+    end
+end
+
+def strip_or_self!(string)
+    str_dup = string.dup
+    return str_dup.strip! || str_dup if str_dup
+end
+
+# Parse pom.xml
+doc = REXML::Document.new(File.new('pom.xml'))
+major_version = doc.elements["/project/version"].text.slice(/\d+\.\d+/)
+artifactid = doc.elements["/project/artifactId"].text
+
+# Get some env variables
+timestamp = ENV['WERCKER_MAIN_PIPELINE_STARTED'] || (Time.now.to_f * 1000).round
+commit_hash = ENV['WERCKER_GIT_COMMIT'] || `git rev-parse --verify HEAD`
+build_url = ENV['WERCKER_BUILD_URL'] || ENV['WERCKER_DEPLOY_URL'] || ENV['WERCKER_APPLICATION_URL'] || "Ran locally"
+branch = ENV['WERCKER_GIT_BRANCH'] || `git rev-parse --abbrev-ref HEAD`
+
+# If we're not on master or a hotfix branch, skip this script
+if (branch != "master" && branch !~ /^hotfix/)
+    STDERR.puts "Not on master branch or a hotfix branch, skipping step"
+    exit 0
+end
+
+mvn_version = "#{major_version}.#{timestamp}"
+tag_name = "#{mvn_version}"
+
+# strip out white space or if none do nothing
+timestamp = strip_or_self!("#{timestamp}")
+commit_hash = strip_or_self!(commit_hash)
+build_url = strip_or_self!(build_url)
+mvn_version = strip_or_self!(mvn_version)
+tag_name = strip_or_self!(tag_name)
+
+# checkout and tag this build
+run_cmd("git checkout -b #{mvn_version}")
+run_cmd("echo '\n\nWercker [build URL](#{build_url})' >> README.md")
+run_cmd("git add README.md")
+run_cmd("mvn versions:set -DnewVersion=#{mvn_version} -DgenerateBackupPoms=false")
+run_cmd("git commit -am '[skip ci] Tag version #{mvn_version}'")
+run_cmd("git tag -a v#{tag_name} -m 'Wercker build for #{commit_hash}'")
+run_cmd("git push origin --tags")
+
+# run this like: `source <(/usr/bin/get_component_version)`
+puts "export MAJOR_VERSION=#{major_version}; export ARTIFACT_ID=#{artifactid}; export COMPONENT_VERSION=#{mvn_version};"

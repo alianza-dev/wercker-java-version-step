@@ -1,0 +1,13 @@
+name: get-versions
+version: 1.0.0
+description: Retrieves the build information and sends to stdout a script to generate env values
+keywords:
+  - maven
+  - java
+  - version
+  - alianza
+properties:
+  pom:
+    type: string
+    required: false
+  
