@@ -24,3 +24,6 @@ _testmain.go
 *.prof
 
 main
+pom_example.xml.*
+version_output
+build_source
