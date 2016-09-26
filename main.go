@@ -33,7 +33,7 @@ func main() {
   writeContents(outFile, sourceContent)
 }
 
-func GetEnvOrDefault(envName string, defaultValue string) (value string) {
+func GetEnvOrDefault(envName string, defaultValue string) (string) {
   envValues := os.Environ()
   for _, value := range envValues {
     name := strings.Split(value, "=")[0]
@@ -49,10 +49,12 @@ func readPom(pomFile string) (content string) {
   pomContent, err := ioutil.ReadFile(pomFile)
   if err != nil {
     fmt.Print(err)
-    return ""
+    content = ""
+  } else {
+    content = string(pomContent)
   }
 
-  return string(pomContent)
+  return content
 }
 
 func Version(pomContents string, timestamp string) (majorVersion string, artifactId string, mvnVersion string) {
@@ -76,7 +78,7 @@ func Version(pomContents string, timestamp string) (majorVersion string, artifac
   return majorVersion, artifactId, mvnVersion
 }
 
-func FormatBashSource(majorVersion string, artifactId string, mvnVersion string) (source string) {
+func FormatBashSource(majorVersion string, artifactId string, mvnVersion string) (string) {
   return fmt.Sprintf("export MAJOR_VERSION=%s; export ARTIFACT_ID=%s; export COMPONENT_VERSION=%s;\n", majorVersion, artifactId, mvnVersion)
 }
 
