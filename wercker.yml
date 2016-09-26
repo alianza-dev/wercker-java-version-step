@@ -9,5 +9,5 @@ build:
     - script:
         name: Test
         code: |
-          go test main_test.go
+          go test -v
 
