@@ -7,6 +7,7 @@ import (
   "encoding/xml"
   "os"
   "strings"
+  "regexp"
 )
 
 type Project struct {
@@ -62,7 +63,13 @@ func Version(pomContents string, timestamp string) (majorVersion string, artifac
     return "", "", ""
   }
 
-  majorVersion = pom.Version
+  versionExtractRegex, err := regexp.Compile(`\d+\.\d+`)
+  if err != nil {
+    fmt.Print(err)
+    return "", "", ""
+  }
+
+  majorVersion = versionExtractRegex.FindString(pom.Version)
   artifactId = pom.ArtifactId
   mvnVersion = fmt.Sprintf("%s.%s", majorVersion, timestamp)
 
