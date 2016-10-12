@@ -80,7 +80,7 @@ func Version(pomContents string, timestamp string) (majorVersion string, artifac
 }
 
 func FormatBashSource(majorVersion string, artifactId string, mvnVersion string, groupId string) (string) {
-  return fmt.Sprintf("export MAJOR_VERSION=%s; export ARTIFACT_ID=%s; export COMPONENT_VERSION=%s; export GROUP_ID=%s\n", majorVersion, artifactId, mvnVersion, groupId)
+  return fmt.Sprintf("export MAJOR_VERSION=%s; export ARTIFACT_ID=%s; export COMPONENT_VERSION=%s; export GROUP_ID=%s;\n", majorVersion, artifactId, mvnVersion, groupId)
 }
 
 func writeContents(o string, contents string) {
