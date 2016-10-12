@@ -62,13 +62,13 @@ func Version(pomContents string, timestamp string) (majorVersion string, artifac
   err := xml.Unmarshal([]byte(pomContents), &pom)
   if err != nil {
     fmt.Print(err)
-    return "", "", ""
+    return "", "", "", ""
   }
 
   versionExtractRegex, err := regexp.Compile(`\d+\.\d+`)
   if err != nil {
     fmt.Print(err)
-    return "", "", ""
+    return "", "", "", ""
   }
 
   majorVersion = versionExtractRegex.FindString(pom.Version)
