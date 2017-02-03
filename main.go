@@ -27,9 +27,9 @@ func main() {
 
   pom := readPom(pomFile)
 
-  majorVersion, artifactId, mvnVersion := Version(pom, timeStamp)
+  majorVersion, artifactId, mvnVersion, groupId := Version(pom, timeStamp)
 
-  sourceContent := FormatBashSource(majorVersion, artifactId, mvnVersion)
+  sourceContent := FormatBashSource(majorVersion, artifactId, mvnVersion, groupId)
   writeContents(outFile, sourceContent)
 }
 
@@ -57,29 +57,30 @@ func readPom(pomFile string) (content string) {
   return content
 }
 
-func Version(pomContents string, timestamp string) (majorVersion string, artifactId string, mvnVersion string) {
+func Version(pomContents string, timestamp string) (majorVersion string, artifactId string, mvnVersion string, groupId string) {
   var pom Project
   err := xml.Unmarshal([]byte(pomContents), &pom)
   if err != nil {
     fmt.Print(err)
-    return "", "", ""
+    return "", "", "", ""
   }
 
   versionExtractRegex, err := regexp.Compile(`\d+\.\d+`)
   if err != nil {
     fmt.Print(err)
-    return "", "", ""
+    return "", "", "", ""
   }
 
   majorVersion = versionExtractRegex.FindString(pom.Version)
   artifactId = pom.ArtifactId
   mvnVersion = fmt.Sprintf("%s.%s", majorVersion, timestamp)
+  groupId = pom.GroupId
 
-  return majorVersion, artifactId, mvnVersion
+  return majorVersion, artifactId, mvnVersion, groupId
 }
 
-func FormatBashSource(majorVersion string, artifactId string, mvnVersion string) (string) {
-  return fmt.Sprintf("export MAJOR_VERSION=%s; export ARTIFACT_ID=%s; export COMPONENT_VERSION=%s;\n", majorVersion, artifactId, mvnVersion)
+func FormatBashSource(majorVersion string, artifactId string, mvnVersion string, groupId string) (string) {
+  return fmt.Sprintf("export MAJOR_VERSION=%s; export ARTIFACT_ID=%s; export COMPONENT_VERSION=%s; export GROUP_ID=%s;\n", majorVersion, artifactId, mvnVersion, groupId)
 }
 
 func writeContents(o string, contents string) {
